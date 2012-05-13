@@ -1,0 +1,20 @@
+<idea-plugin version="2">
+    <name>Global Duplications searcher</name>
+    <description>Inspect Java code duplicates</description>
+    <version>1.0</version>
+
+    <idea-version since-build="117"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <codeInspection.InspectionExtension id="duplicationGlobalInspection"
+                                            implementation="ru.spbau.duplication.DuplicationInspectionExtensionsFactory"/>
+
+        <globalInspection shortName="DuplicationGlobalInspectionTool"
+                          bundle="ru.spbau.duplication.Duplication"
+                          key="simian.inspection.duplicate.display.name"
+                          groupName="Duplications"
+                          enabledByDefault="true"
+                          level="WARNING"
+                          implementationClass="ru.spbau.duplication.DuplicationGlobalInspectionTool"/>
+    </extensions>
+</idea-plugin>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <problem>
+        <file>Main.java</file>
+        <line>8</line>
+        <entry_point TYPE="file" FQNAME="Main.java"/>
+        <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES" />
+        <description>Duplicates method &lt;code&gt;&lt;a HREF=&quot;Foo.java#0&quot;&gt;Foo&lt;/a&gt;&lt;/code&gt;:&lt;code&gt;&lt;a HREF=&quot;Foo.java#28&quot;&gt;printHelloWorld&lt;/a&gt;&lt;/code&gt;</description>
+    </problem>
+</root>

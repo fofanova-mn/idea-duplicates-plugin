@@ -4,6 +4,7 @@ import com.intellij.analysis.AnalysisScope;
 import com.intellij.codeInspection.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.Trinity;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -59,7 +60,22 @@ public class DuplicationGlobalInspectionTool extends GlobalInspectionTool {
                     final Match matchInClass = problem.getFirst();
                     final PsiElement[] elementsInSuperClass = problem.getSecond();
 
-                    final ProblemDescriptor descriptor = computeElementsProblemDescriptor(matchInClass, elementsInSuperClass, manager);
+                    final ProblemDescriptor descriptor = computeElementsProblemDescriptor(null, matchInClass, elementsInSuperClass, manager);
+                    if (descriptor != null) {
+                        problemDescriptionsProcessor.addProblemElement(globalContext.getRefManager().getReference(matchInClass.getFile()), descriptor);
+                    }
+                }
+            });
+        }
+
+        for (final Trinity<PsiClass, Match, PsiElement[]> problem : duplicationInspectionContext.getStatementsMatchesInRelatives()) {
+            ApplicationManager.getApplication().runReadAction(new Runnable() {
+                @Override
+                public void run() {
+                    final Match matchInClass = problem.getSecond();
+                    final PsiElement[] elementsInSuperClass = problem.getThird();
+
+                    final ProblemDescriptor descriptor = computeElementsProblemDescriptor(problem.getFirst(), matchInClass, elementsInSuperClass, manager);
                     if (descriptor != null) {
                         problemDescriptionsProcessor.addProblemElement(globalContext.getRefManager().getReference(matchInClass.getFile()), descriptor);
                     }
@@ -86,7 +102,7 @@ public class DuplicationGlobalInspectionTool extends GlobalInspectionTool {
     }
 
     @Nullable
-    private ProblemDescriptor computeElementsProblemDescriptor(Match matchInClass, PsiElement[] elementsInSuperClass, InspectionManager manager) {
+    private ProblemDescriptor computeElementsProblemDescriptor(@Nullable PsiClass clazz, Match matchInClass, PsiElement[] elementsInSuperClass, InspectionManager manager) {
         final PsiFile psiFileSuper = elementsInSuperClass[0].getContainingFile();
         final PsiFile psiFile = matchInClass.getFile();
         int startOffset = elementsInSuperClass[0].getTextRange().getStartOffset();
@@ -106,7 +122,7 @@ public class DuplicationGlobalInspectionTool extends GlobalInspectionTool {
                 ),
                 ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
                 false,
-                new DuplicateStatementsQuickFix(matchInClass, elementsInSuperClass)
+                new DuplicateStatementsQuickFix(clazz, matchInClass, elementsInSuperClass)
         );
     }
 }

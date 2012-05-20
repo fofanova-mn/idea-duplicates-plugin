@@ -10,10 +10,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiReference;
+import com.intellij.psi.*;
 import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
 import com.intellij.refactoring.util.duplicates.Match;
 import com.intellij.refactoring.util.duplicates.MethodDuplicatesHandler;
@@ -27,10 +24,13 @@ import org.jetbrains.annotations.Nullable;
 public class DuplicateStatementsQuickFix implements LocalQuickFix {
     private final Match match;
     private final PsiElement[] elements;
+    @Nullable
+    private final PsiClass clazz;
 
-    public DuplicateStatementsQuickFix(Match match, PsiElement[] elements) {
+    public DuplicateStatementsQuickFix(@Nullable PsiClass clazz, Match match, PsiElement[] elements) {
         this.match = match;
         this.elements = elements;
+        this.clazz = clazz;
     }
 
     @NotNull
@@ -73,6 +73,11 @@ public class DuplicateStatementsQuickFix implements LocalQuickFix {
             // find match to update names
             for (Match newMatch : MethodDuplicatesHandler.hasDuplicates(match.getFile(), psiMethod)) {
                 new DuplicateQuickFix(newMatch, psiMethod, false).applyFix(project, descriptor);
+            }
+
+            if(clazz != null) {
+                psiMethod.delete();
+                clazz.add(psiMethod);
             }
         }
     }

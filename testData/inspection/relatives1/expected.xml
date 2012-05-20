@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <problem>
+        <file>Bar.java</file>
+        <line>3</line>
+        <module>testRelatives1_5197216925885818340</module>
+        <package>&lt;default&gt;</package>
+        <entry_point TYPE="file" FQNAME="Bar.java">
+            <entry_point TYPE="package" FQNAME="">
+                <entry_point TYPE="project" FQNAME="testRelatives1_5197216925885818340" />
+            </entry_point>
+        </entry_point>
+        <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES" />
+        <hints />
+        <description>Code in &lt;code&gt;&lt;a HREF=&quot;Foo.java#0&quot;&gt;Foo.java&lt;/a&gt;&lt;/code&gt;(&lt;code&gt;&lt;a HREF=&quot;Foo.java#49&quot;&gt;from&lt;/a&gt;&lt;/code&gt; ,&lt;code&gt;&lt;a HREF=&quot;Foo.java#262&quot;&gt;to&lt;/a&gt;&lt;/code&gt;) duplicates code in &lt;code&gt;&lt;a HREF=&quot;Bar.java#0&quot;&gt;Bar.java&lt;/a&gt;&lt;/code&gt;(&lt;code&gt;&lt;a HREF=&quot;Bar.java#49&quot;&gt;from&lt;/a&gt;&lt;/code&gt; ,&lt;code&gt;&lt;a HREF=&quot;Bar.java#262&quot;&gt;to&lt;/a&gt;&lt;/code&gt;)</description>
+    </problem>
+    <problem>
+        <file>Foo.java</file>
+        <line>3</line>
+        <module>testRelatives1_387614180072228823</module>
+        <package>&lt;default&gt;</package>
+        <entry_point TYPE="file" FQNAME="Foo.java">
+            <entry_point TYPE="package" FQNAME="">
+                <entry_point TYPE="project" FQNAME="testRelatives1_387614180072228823" />
+            </entry_point>
+        </entry_point>
+        <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES" />
+        <hints />
+        <description>Code in &lt;code&gt;&lt;a HREF=&quot;Bar.java#0&quot;&gt;Bar.java&lt;/a&gt;&lt;/code&gt;(&lt;code&gt;&lt;a HREF=&quot;Bar.java#49&quot;&gt;from&lt;/a&gt;&lt;/code&gt; ,&lt;code&gt;&lt;a HREF=&quot;Bar.java#262&quot;&gt;to&lt;/a&gt;&lt;/code&gt;) duplicates code in &lt;code&gt;&lt;a HREF=&quot;Foo.java#0&quot;&gt;Foo.java&lt;/a&gt;&lt;/code&gt;(&lt;code&gt;&lt;a HREF=&quot;Foo.java#49&quot;&gt;from&lt;/a&gt;&lt;/code&gt; ,&lt;code&gt;&lt;a HREF=&quot;Foo.java#262&quot;&gt;to&lt;/a&gt;&lt;/code&gt;)</description>
+    </problem>
+</root>

@@ -10,7 +10,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.util.ProgressWrapper;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.*;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -33,9 +32,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * @author: maria
+ * Class of the duplication inspection context.
+ *
+ * @author: Maria Fofanova
  */
-public class DuplicationGlobalInspectionContext implements GlobalInspectionContextExtension<DuplicationGlobalInspectionContext> {
+public class DuplicationGlobalInspectionContext
+        implements GlobalInspectionContextExtension<DuplicationGlobalInspectionContext> {
+
     public static final Key<DuplicationGlobalInspectionContext> KEY = Key.create("DuplicationGlobalInspectionContext");
 
     private final List<Pair<Match, PsiMethod>> utilMatches = new ArrayList<Pair<Match, PsiMethod>>();
@@ -72,22 +75,15 @@ public class DuplicationGlobalInspectionContext implements GlobalInspectionConte
     public void cleanup() {
         utilMatches.clear();
         hierarchyMatches.clear();
+        statementsMatches.clear();
+        statementsMatchesInRelatives.clear();
     }
 
     @Override
     public void performPreRunActivities(List<Tools> globalTools,
                                         List<Tools> localTools,
                                         final GlobalInspectionContext context) {
-        /*GlobalSearchScope libraryScope = GlobalSearchScope.EMPTY_SCOPE;
-        for (Library library : LibraryTablesRegistrar.getInstance().getLibraryTable(context.getProject()).getLibraries()){
-            final List<VirtualFile> libraryFiles = Arrays.asList(library.getFiles(OrderRootType.SOURCES));
-            final GlobalSearchScope oneLibraryScope = GlobalSearchScope.filesScope(context.getProject(), libraryFiles);
-            libraryScope = libraryScope.uniteWith(oneLibraryScope);
-        }*/
-        final Project project = context.getProject();
-        final GlobalSearchScope libraryScope = GlobalSearchScope.allScope(project).uniteWith(
-                GlobalSearchScope.notScope(GlobalSearchScope.projectScope(project)));
-
+        final GlobalSearchScope libraryScope = GlobalSearchScope.EMPTY_SCOPE;
 
         final ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
         findDuplicates(context, findUtilMethods(context, libraryScope, indicator), indicator);
@@ -153,7 +149,7 @@ public class DuplicationGlobalInspectionContext implements GlobalInspectionConte
     }
 
     /**
-     * @return all classes from <code>context<code/>
+     * @return All classes from <code>context<code/>
      */
     private Set<PsiClass> findClasses(final GlobalInspectionContext context,
                                       GlobalSearchScope libraryScope, @Nullable final ProgressIndicator indicator) {
@@ -349,9 +345,9 @@ public class DuplicationGlobalInspectionContext implements GlobalInspectionConte
                 PsiElement[] children = childrenList.toArray(new PsiElement[childrenList.size()]);
                 // '{' statements '}'
                 children = Arrays.copyOfRange(children, 1, children.length - 1);
-                for (int len = children.length - 1; len > 4; --len) {
-                    for (int i = 0; i < children.length - len; ++i) {
-                        final PsiElement[] subChildren = Arrays.copyOfRange(children, i, i + len + 1);
+                for (int len = children.length; len > 1; --len) {
+                    for (int i = 0; i < children.length - len + 1; ++i) {
+                        final PsiElement[] subChildren = Arrays.copyOfRange(children, i, i + len);
                         if (!processStatements(context, clazz, subChildren, handler)) {
                             // stop
                             return;
@@ -393,7 +389,8 @@ public class DuplicationGlobalInspectionContext implements GlobalInspectionConte
         final List<Match> duplicates = duplicatesFinder.findDuplicates(targetClass);
         for (Match match : duplicates) {
             final PsiMethod psiMethod = PsiTreeUtil.getParentOfType(match.getMatchStart(), PsiMethod.class);
-            if (psiMethod == null || isStatic(psiMethod)) {
+            final PsiMethod parentPsiMethod = PsiTreeUtil.getParentOfType(elements[0], PsiMethod.class);
+            if (psiMethod == null || (isStatic(psiMethod) && !isStatic(parentPsiMethod))) {        //static???
                 continue;
             }
             handler.handle(match, elements);

@@ -19,7 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author maria
+ * Class of quick fixes for the duplicates of lines.
+ *
+ * @author Maria Fofanova
  */
 public class DuplicateStatementsQuickFix implements LocalQuickFix {
     private final Match match;
@@ -27,6 +29,13 @@ public class DuplicateStatementsQuickFix implements LocalQuickFix {
     @Nullable
     private final PsiClass clazz;
 
+    /**
+     * Constructs a quick fix.
+     *
+     * @param clazz Class where duplication was found.
+     * @param match Duplicate lines.
+     * @param elements Elements that are duplicated in the clazz.
+     */
     public DuplicateStatementsQuickFix(@Nullable PsiClass clazz, Match match, PsiElement[] elements) {
         this.match = match;
         this.elements = elements;
@@ -76,13 +85,18 @@ public class DuplicateStatementsQuickFix implements LocalQuickFix {
             }
 
             if(clazz != null) {
-                psiMethod.delete();
                 clazz.add(psiMethod);
+                psiMethod.delete();
             }
         }
     }
 
-
+    /**
+     * Opens file from the project to edit.
+     * @param project The project.
+     * @param file The file.
+     * @return The editor.
+     */
     @Nullable
     private static Editor openEditor(final Project project, final PsiFile file) {
         final VirtualFile virtualFile = file.getVirtualFile();

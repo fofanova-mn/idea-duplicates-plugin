@@ -11,7 +11,9 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author: maria
+ * Class of extension factory that creates a context for the duplicates detection.
+ *
+ * @author: Maria Fofanova
  */
 public class DuplicationInspectionExtensionsFactory extends InspectionExtensionsFactory {
     @Override

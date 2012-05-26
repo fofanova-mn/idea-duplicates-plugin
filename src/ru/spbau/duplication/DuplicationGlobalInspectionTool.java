@@ -13,12 +13,26 @@ import com.intellij.refactoring.util.duplicates.Match;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author maria
+ * Inspection for detecting code duplicates.
+ *
+ * @author Maria Fofanova
  */
 public class DuplicationGlobalInspectionTool extends GlobalInspectionTool {
+
+    /**
+     * Runs inspection for detecting code duplicates.
+     *
+     * @param scope The scope where to detect duplicates in.
+     * @param manager The inspection manager.
+     * @param globalContext The context of running.
+     * @param problemDescriptionsProcessor The processor that collects results of running the inspection.
+     */
     @Override
-    public void runInspection(AnalysisScope scope, final InspectionManager manager, final GlobalInspectionContext globalContext, final ProblemDescriptionsProcessor problemDescriptionsProcessor) {
-        final DuplicationGlobalInspectionContext duplicationInspectionContext = globalContext.getExtension(DuplicationGlobalInspectionContext.KEY);
+    public void runInspection(AnalysisScope scope, final InspectionManager manager,
+                              final GlobalInspectionContext globalContext,
+                              final ProblemDescriptionsProcessor problemDescriptionsProcessor) {
+        final DuplicationGlobalInspectionContext duplicationInspectionContext =
+                globalContext.getExtension(DuplicationGlobalInspectionContext.KEY);
         if (duplicationInspectionContext == null) {
             return;
         }
@@ -84,6 +98,15 @@ public class DuplicationGlobalInspectionTool extends GlobalInspectionTool {
         }
     }
 
+    /**
+     * Creates a description of a method duplication.
+     *
+     * @param match Statements that duplicate the specified method.
+     * @param method The specified method.
+     * @param manager The manager of inspections.
+     * @param appendClassNameInFix True if it is needed to specify class name before the method invocation.
+     * @return The problem descriptor.
+     */
     @Nullable
     private ProblemDescriptor computeMethodProblemDescriptor(Match match, PsiMethod method, InspectionManager manager, boolean appendClassNameInFix) {
         final PsiClass psiClass = method.getContainingClass();
@@ -101,8 +124,18 @@ public class DuplicationGlobalInspectionTool extends GlobalInspectionTool {
         );
     }
 
+    /**
+     * Creates a description of lines duplication (part of methods).
+     *
+     * @param clazz Class where duplication was found.
+     * @param matchInClass Lines of duplication.
+     * @param elementsInSuperClass Elements in super class that were duplicated.
+     * @param manager The inspection manager.
+     * @return The descriptor of duplication.
+     */
     @Nullable
-    private ProblemDescriptor computeElementsProblemDescriptor(@Nullable PsiClass clazz, Match matchInClass, PsiElement[] elementsInSuperClass, InspectionManager manager) {
+    private ProblemDescriptor computeElementsProblemDescriptor(@Nullable PsiClass clazz, Match matchInClass,
+                                                        PsiElement[] elementsInSuperClass, InspectionManager manager) {
         final PsiFile psiFileSuper = elementsInSuperClass[0].getContainingFile();
         final PsiFile psiFile = matchInClass.getFile();
         int startOffset = elementsInSuperClass[0].getTextRange().getStartOffset();

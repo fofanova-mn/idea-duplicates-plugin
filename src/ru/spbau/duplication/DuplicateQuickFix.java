@@ -12,13 +12,22 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * @author: maria
+ * Class of quick fix. Needed to replace duplicated code with  a call of duplicated method.
+ *
+ * @author: Maria Fofanova
  */
 public class DuplicateQuickFix implements LocalQuickFix {
     private final Match match;
     private final PsiMethod method;
     private final boolean appendClassName;
 
+    /**
+     * Constructs a new quick fix.
+     *
+     * @param match Lines of duplicate.
+     * @param method Method that was duplicated.
+     * @param appendClassName True if it is needed to add the name of class before the method invocation.
+     */
     public DuplicateQuickFix(Match match, PsiMethod method, boolean appendClassName) {
         this.match = match;
         this.method = method;
@@ -37,6 +46,12 @@ public class DuplicateQuickFix implements LocalQuickFix {
         return DuplicationBundle.message("replace.quick.fix.name");
     }
 
+    /**
+     * Replaces lines with the invoking of method.
+     *
+     * @param project Project where duplicate is.
+     * @param descriptor The description of duplication.
+     */
     @Override
     public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
         final PsiElementFactory factory = JavaPsiFacade.getInstance(project).getElementFactory();
@@ -59,8 +74,10 @@ public class DuplicateQuickFix implements LocalQuickFix {
             ++i;
         }
         callText.append(")");
-        PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) factory.createExpressionFromText(callText.toString(), null);
-        methodCallExpression = (PsiMethodCallExpression) CodeStyleManager.getInstance(method.getManager()).reformat(methodCallExpression);
+        PsiMethodCallExpression methodCallExpression =
+                (PsiMethodCallExpression) factory.createExpressionFromText(callText.toString(), null);
+        methodCallExpression = (PsiMethodCallExpression) CodeStyleManager.getInstance(method.getManager())
+                .reformat(methodCallExpression);
 
         final PsiFile matchFile = match.getFile();
         match.replace(method, methodCallExpression, null);

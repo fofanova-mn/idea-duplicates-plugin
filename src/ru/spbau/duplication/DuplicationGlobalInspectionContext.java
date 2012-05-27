@@ -26,6 +26,7 @@ import com.intellij.refactoring.util.duplicates.MethodDuplicatesHandler;
 import com.intellij.refactoring.util.duplicates.VariableReturnValue;
 import com.intellij.util.containers.ContainerUtil;
 import gnu.trove.THashSet;
+import inspectionDescriptions.Settings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,11 +87,15 @@ public class DuplicationGlobalInspectionContext
         final GlobalSearchScope libraryScope = GlobalSearchScope.EMPTY_SCOPE;
 
         final ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
-        findDuplicates(context, findUtilMethods(context, libraryScope, indicator), indicator);
+        if (Settings.isFindDuplicatesOfPublic())
+            findDuplicates(context, findUtilMethods(context, libraryScope, indicator), indicator);
         final Set<PsiClass> classes = findClasses(context, libraryScope, indicator);
-        findDuplicatesInHierarchy(context, classes, indicator);
-        findStatementsDuplicates(context, classes, indicator);
-        findStatementsDuplicatesInRelatives(context, classes, indicator);
+        if (Settings.isFindDuplicatesOfMethods())
+            findDuplicatesInHierarchy(context, classes, indicator);
+        if (Settings.isFindDuplicatesOfStatementsInHierarchy())
+            findStatementsDuplicates(context, classes, indicator);
+        if (Settings.isFindDuplicatesOfStatementsInRelatives())
+            findStatementsDuplicatesInRelatives(context, classes, indicator);
 
 
     }
@@ -114,7 +119,7 @@ public class DuplicationGlobalInspectionContext
                     }
 
                     for (PsiMethod psiMethod : utilMethods) {
-                        if(psiMethod.getBody() == null) {
+                        if (psiMethod.getBody() == null) {
                             continue;
                         }
                         for (Match match : MethodDuplicatesHandler.hasDuplicates(psiFile, psiMethod)) {
@@ -343,13 +348,11 @@ public class DuplicationGlobalInspectionContext
                             }
                         });
                 PsiElement[] children = childrenList.toArray(new PsiElement[childrenList.size()]);
-                // '{' statements '}'
                 children = Arrays.copyOfRange(children, 1, children.length - 1);
-                for (int len = children.length; len > 1; --len) {
+                for (int len = children.length; len > Settings.getMinimumSizeOfDuplicate() - 1; --len) {
                     for (int i = 0; i < children.length - len + 1; ++i) {
                         final PsiElement[] subChildren = Arrays.copyOfRange(children, i, i + len);
                         if (!processStatements(context, clazz, subChildren, handler)) {
-                            // stop
                             return;
                         }
                     }

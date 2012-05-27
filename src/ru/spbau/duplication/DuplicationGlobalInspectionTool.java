@@ -31,6 +31,7 @@ public class DuplicationGlobalInspectionTool extends GlobalInspectionTool {
     public void runInspection(AnalysisScope scope, final InspectionManager manager,
                               final GlobalInspectionContext globalContext,
                               final ProblemDescriptionsProcessor problemDescriptionsProcessor) {
+
         final DuplicationGlobalInspectionContext duplicationInspectionContext =
                 globalContext.getExtension(DuplicationGlobalInspectionContext.KEY);
         if (duplicationInspectionContext == null) {

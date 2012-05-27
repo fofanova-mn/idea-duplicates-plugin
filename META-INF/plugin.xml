@@ -1,6 +1,18 @@
 <idea-plugin version="2">
     <name>Global Duplications searcher</name>
     <description>Inspect Java code duplicates</description>
+    <change-notes>The plug-in for IntelliJ IDEA.
+
+        Provides an inspection based on the algorithm of detecting duplicate codes implemented in IntelliJ IDEA.
+
+        Finds different types of duplicates such as:
+
+        duplication of public static methods
+        duplication of methods from super classes
+        duplication of statements from super classes
+        duplication of statements from relatives
+        The interface is based on inspections.
+    </change-notes>
     <version>1.0</version>
 
     <idea-version since-build="117"/>
@@ -16,5 +28,7 @@
                           enabledByDefault="true"
                           level="WARNING"
                           implementationClass="ru.spbau.duplication.DuplicationGlobalInspectionTool"/>
+
+        <applicationConfigurable instance="ru.spbau.duplication.Configurator"/>
     </extensions>
 </idea-plugin>

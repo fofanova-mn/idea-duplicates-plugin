@@ -9,7 +9,7 @@ import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
 
 /**
- * @author: maria
+ * @author: Maria Fofanova
  */
 public class DuplicationBundle {
     private static Reference<ResourceBundle> ourBundle;

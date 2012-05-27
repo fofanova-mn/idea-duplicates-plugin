@@ -193,6 +193,37 @@ public class DuplicationGlobalInspectionContext
         return method.getModifierList().hasExplicitModifier(PsiModifier.PRIVATE);
     }
 
+    private void findDuplicatesInEachClass(GlobalInspectionContext context,
+                                           Set<PsiClass> classes,
+                                           final ProgressIndicator indicator) {
+        for (final PsiClass clazz : classes) {
+            ApplicationManager.getApplication().runReadAction(new Runnable() {
+                @Override
+                public void run() {
+                    if (indicator != null) {
+                        ProgressWrapper.unwrap(indicator).setText(
+                                DuplicationBundle.message("finding.duplicates.in.class", clazz.getQualifiedName()));
+                    }
+                    final List<PsiMethod> methods = new ArrayList<PsiMethod>(Arrays.asList(clazz.getMethods()));
+                    for (PsiMethod psiMethod : methods) {
+                        if (psiMethod.getBody() == null) {
+                            continue;
+                        }
+                        for (Match match : MethodDuplicatesHandler
+                                .hasDuplicates(clazz.getContainingFile(), psiMethod)) {
+                            final TextRange matchRange = TextRange
+                                    .create(match.getMatchStart().getTextOffset(), match.getMatchEnd().getTextOffset());
+                            if (clazz.getTextRange().contains(matchRange)) {
+                                hierarchyMatches.add(new Pair<Match, PsiMethod>(match, psiMethod));
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+    }
+
     private void findDuplicatesInHierarchy(GlobalInspectionContext context,
                                            Set<PsiClass> classes,
                                            final ProgressIndicator indicator) {
@@ -254,6 +285,12 @@ public class DuplicationGlobalInspectionContext
                         ProgressWrapper.unwrap(indicator).setText(DuplicationBundle
                                 .message("finding.statements.duplicates.in.class", clazz.getQualifiedName()));
                     }
+                    suggestDuplication(context, clazz, clazz,  new MatchHandler() {
+                        @Override
+                        public void handle(Match match, PsiElement[] elements) {
+                            statementsMatches.add(new Pair<Match, PsiElement[]>(match, elements));
+                        }
+                    });
                     for (PsiClass superClazz : clazz.getSupers()) {
                         if (superClazz.isInterface() || superClazz.isEnum()) {
                             continue;
@@ -333,6 +370,22 @@ public class DuplicationGlobalInspectionContext
         return result;
     }
 
+    private boolean canBeDuplication(Match match, PsiElement elements[]) {
+        final PsiClass childPsiClass = PsiTreeUtil.getParentOfType(match.getMatchStart(), PsiClass.class);
+        final PsiClass parentPsiClass = PsiTreeUtil.getParentOfType(elements[0], PsiClass.class);
+        final PsiMethod childPsiMethod = PsiTreeUtil.getParentOfType(match.getMatchStart(), PsiMethod.class);
+        final PsiMethod parentPsiMethod = PsiTreeUtil.getParentOfType(elements[0], PsiMethod.class);
+
+        if(childPsiClass.equals(parentPsiClass)) {
+            return true;
+        }
+        if(childPsiClass.isInheritorDeep(parentPsiClass, null)) {
+            return !isPrivate(parentPsiMethod) || (isStatic(childPsiMethod) && !isStatic(parentPsiMethod));
+        }
+        if(findCommonParent(childPsiClass, parentPsiClass) != null) return true;
+        return false;
+    }
+
     private void suggestDuplication(final GlobalInspectionContext context,
                                     final PsiClass clazz,
                                     final PsiClass superClazz,
@@ -393,7 +446,8 @@ public class DuplicationGlobalInspectionContext
         for (Match match : duplicates) {
             final PsiMethod psiMethod = PsiTreeUtil.getParentOfType(match.getMatchStart(), PsiMethod.class);
             final PsiMethod parentPsiMethod = PsiTreeUtil.getParentOfType(elements[0], PsiMethod.class);
-            if (psiMethod == null || (isStatic(psiMethod) && !isStatic(parentPsiMethod))) {        //static???
+            if (psiMethod == null || psiMethod.equals(parentPsiMethod)
+                    || (isStatic(psiMethod) && !isStatic(parentPsiMethod))) {
                 continue;
             }
             handler.handle(match, elements);

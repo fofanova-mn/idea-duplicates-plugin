@@ -32,8 +32,8 @@ public class DuplicateStatementsQuickFix implements LocalQuickFix {
     /**
      * Constructs a quick fix.
      *
-     * @param clazz Class where duplication was found.
-     * @param match Duplicate lines.
+     * @param clazz    Class where duplication was found.
+     * @param match    Duplicate lines.
      * @param elements Elements that are duplicated in the clazz.
      */
     public DuplicateStatementsQuickFix(@Nullable PsiClass clazz, Match match, PsiElement[] elements) {
@@ -77,14 +77,15 @@ public class DuplicateStatementsQuickFix implements LocalQuickFix {
         final PsiElement targetElement = referenceAt == null ? null : referenceAt.resolve();
         if (targetElement instanceof PsiMethod) {
             PsiMethod psiMethod = (PsiMethod) targetElement;
-            psiMethod.getModifierList().setModifierProperty("protected", true);
+            if (psiMethod.getModifierList().hasModifierProperty("private"))
+                psiMethod.getModifierList().setModifierProperty("protected", true);
 
             // find match to update names
             for (Match newMatch : MethodDuplicatesHandler.hasDuplicates(match.getFile(), psiMethod)) {
                 new DuplicateQuickFix(newMatch, psiMethod, false).applyFix(project, descriptor);
             }
 
-            if(clazz != null) {
+            if (clazz != null) {
                 clazz.add(psiMethod);
                 psiMethod.delete();
             }
@@ -93,8 +94,9 @@ public class DuplicateStatementsQuickFix implements LocalQuickFix {
 
     /**
      * Opens file from the project to edit.
+     *
      * @param project The project.
-     * @param file The file.
+     * @param file    The file.
      * @return The editor.
      */
     @Nullable
